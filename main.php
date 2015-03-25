@@ -59,6 +59,16 @@ class HYKWTinyABTest
     $this->isDisable = FALSE;
   }
 
+  function isDisable()
+  {
+    return $this->isDisable;
+  }
+  function isEnable()
+  {
+    return !$this->isDisable;
+  }
+
+
 
   /**
    * getDice サイコロの値を返す
