@@ -20,10 +20,11 @@ class HYKWTinyABTest
    * __construct cookieの値をセット、なければサイコロを振る
    * 
    * @param int $max_ab_num サイコロの範囲は0～(この値-1)までの間
+   * @param int $expire_min Cookieの寿命(分): デフォルト30分
    */
-  function __construct($max_ab_num = 2)
+  function __construct($max_ab_num = 2, $expire_min = 30)
   {
-    $this->cookie_expire = time() + 60*30; // 30分
+    $this->cookie_expire = time() + ($expire_min * 60);
     $this->enable();
     $this->max_ab_num = $max_ab_num;
 
