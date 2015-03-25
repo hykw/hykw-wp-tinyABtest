@@ -10,7 +10,6 @@
 class HYKWTinyABTest
 {
   const COOKIE_AB = 'ABC';
-  const MAX_AB_NUM = 2;
 
   private $ab;
   private $cookie_expire;
@@ -20,11 +19,13 @@ class HYKWTinyABTest
   /**
    * __construct cookieの値をセット、なければサイコロを振る
    * 
+   * @param int $max_ab_num サイコロの範囲は0～(この値-1)までの間
    */
-  function __construct()
+  function __construct($max_ab_num = 2)
   {
     $this->cookie_expire = time() + 60*30; // 30分
     $this->enable();
+    $this->max_ab_num = $max_ab_num;
 
 
     if (isset($_COOKIE[self::COOKIE_AB])) {
@@ -32,7 +33,7 @@ class HYKWTinyABTest
 
       # cookie 改竄されてないか？
       if (is_numeric($cookie)) {
-        if ( (0 <= $cookie) && ($cookie < self::MAX_AB_NUM)) {
+        if ( (0 <= $cookie) && ($cookie < $this->max_ab_num)) {
           $this->ab = intval($cookie);
           return;
         }
@@ -40,7 +41,7 @@ class HYKWTinyABTest
     }
 
     # cookieの値を利用できないので、値を再生成
-    $this->ab = $this->_castDice(self::MAX_AB_NUM);
+    $this->ab = $this->_castDice($this->max_ab_num);
   }
 
 
