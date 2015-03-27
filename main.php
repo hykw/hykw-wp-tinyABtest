@@ -24,8 +24,10 @@ class HYKWTinyABTestBase
    * @param int $max_ab_num サイコロの範囲は0～(この値-1)までの間
    * @param int $expire_min Cookieの寿命(分): デフォルト30分
    * @param int $cookie_name cookieの名前
+   * @param int $cookie_value $_COOKIEが無い場合のデフォルト値
    */
-  function __construct($max_ab_num = FALSE, $expire_min = FALSE, $cookie_name = FALSE)
+  function __construct($max_ab_num = FALSE, $expire_min = FALSE, 
+                       $cookie_name = FALSE, $cookie_value = FALSE)
   {
     # デフォルト値のセット
     if ($max_ab_num == FALSE)
@@ -51,8 +53,15 @@ class HYKWTinyABTestBase
         $cookie = $work;
     }
 
-    if ($cookie == FALSE)
-      $cookie = $this->_castDice($this->max_ab_num);
+
+    # 引数をセット or 再生成
+    if ($cookie == FALSE) {
+      if ($cookie_value == FALSE)
+        $cookie = $this->_castDice($this->max_ab_num);
+      else
+        $cookie = $cookie_value;
+    }
+
 
     $this->cookie_value = $cookie;
   }
@@ -108,6 +117,18 @@ class HYKWTinyABTestBase
 
     return $this->cookie_value;
   }
+
+
+  /**
+   * setDice サイコロの値をセットする
+   * 
+   * @param string $value セットする値
+   */
+  function setDice($value)
+  {
+    $this->cookie_value = $value;
+  }
+
 
   /**
    * _castDice サイコロを振る
