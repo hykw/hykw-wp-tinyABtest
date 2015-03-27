@@ -4,15 +4,16 @@
   Plugin URI: https://github.com/hykw/hykw-wp-tinyABtest
   Description: 簡易的なABテストを支援するプラグイン
   Author: hitoshi-hayakawa
-  Version: 1.0.0
+  Version: 1.0.1
  */
 
 class HYKWTinyABTest
 {
-  const COOKIE_AB = 'ABC';
+  const DEFAULT_COOKIE_NAME = 'ABC';
 
   private $ab;
   private $cookie_expire;
+  private $cookie_name;
   private $isDisable;
 
 
@@ -22,15 +23,16 @@ class HYKWTinyABTest
    * @param int $max_ab_num サイコロの範囲は0～(この値-1)までの間
    * @param int $expire_min Cookieの寿命(分): デフォルト30分
    */
-  function __construct($max_ab_num = 2, $expire_min = 30)
+  function __construct($max_ab_num = 2, $expire_min = 30, $cookie_name = self::DEFAULT_COOKIE_NAME)
   {
     $this->cookie_expire = time() + ($expire_min * 60);
     $this->enable();
     $this->max_ab_num = $max_ab_num;
+    $this->cookie_name = $cookie_name;
 
 
-    if (isset($_COOKIE[self::COOKIE_AB])) {
-      $cookie = $_COOKIE[self::COOKIE_AB];
+    if (isset($_COOKIE[$this->cookie_name])) {
+      $cookie = $_COOKIE[$this->cookie_name];
 
       # cookie 改竄されてないか？
       if (is_numeric($cookie)) {
@@ -106,7 +108,7 @@ class HYKWTinyABTest
   function writeABCookie()
   {
     if (!$this->isDisable)
-      setcookie(self::COOKIE_AB, $this->ab, $this->cookie_expire);
+      setcookie($this->cookie_name, $this->ab, $this->cookie_expire);
   }
 
 
