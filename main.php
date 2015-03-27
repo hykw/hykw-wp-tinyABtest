@@ -11,7 +11,7 @@ class HYKWTinyABTest
 {
   const DEFAULT_COOKIE_NAME = 'ABC';
 
-  private $ab;
+  private $cookie_value;
   private $cookie_expire;
   private $cookie_name;
   private $isDisable;
@@ -22,9 +22,20 @@ class HYKWTinyABTest
    * 
    * @param int $max_ab_num サイコロの範囲は0～(この値-1)までの間
    * @param int $expire_min Cookieの寿命(分): デフォルト30分
+   * @param int $cookie_name cookieの名前
    */
-  function __construct($max_ab_num = 2, $expire_min = 30, $cookie_name = self::DEFAULT_COOKIE_NAME)
+  function __construct($max_ab_num = FALSE, $expire_min = FALSE, $cookie_name = FALSE)
   {
+    # デフォルト値のセット
+    if ($max_ab_num == FALSE)
+      $max_ab_num = 2;
+    if ($expire_min == FALSE)
+      $expire_min = 30;
+    if ($cookie_name == FALSE)
+      $cookie_name = self::DEFAULT_COOKIE_NAME;
+
+
+
     $this->cookie_expire = time() + ($expire_min * 60);
     $this->enable();
     $this->max_ab_num = $max_ab_num;
@@ -37,14 +48,14 @@ class HYKWTinyABTest
       # cookie 改竄されてないか？
       if (is_numeric($cookie)) {
         if ( (0 <= $cookie) && ($cookie < $this->max_ab_num)) {
-          $this->ab = intval($cookie);
+          $this->cookie_value = intval($cookie);
           return;
         }
       }
     }
 
     # cookieの値を利用できないので、値を再生成
-    $this->ab = $this->_castDice($this->max_ab_num);
+    $this->cookie_value = $this->_castDice($this->max_ab_num);
   }
 
 
@@ -84,7 +95,7 @@ class HYKWTinyABTest
     if ($this->isDisable)
       return 0;
 
-    return $this->ab;
+    return $this->cookie_value;
   }
 
   /**
@@ -108,7 +119,7 @@ class HYKWTinyABTest
   function writeABCookie()
   {
     if (!$this->isDisable)
-      setcookie($this->cookie_name, $this->ab, $this->cookie_expire);
+      setcookie($this->cookie_name, $this->cookie_value, $this->cookie_expire);
   }
 
 
