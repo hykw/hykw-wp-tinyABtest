@@ -4,10 +4,10 @@
   Plugin URI: https://github.com/hykw/hykw-wp-tinyABtest
   Description: 簡易的なABテストを支援するプラグイン
   Author: hitoshi-hayakawa
-  Version: 1.0.1
+  Version: 2.0.0
  */
 
-class HYKWTinyABTest
+class HYKWTinyABTestBase
 {
   const DEFAULT_COOKIE_NAME = 'ABC';
 
@@ -15,6 +15,7 @@ class HYKWTinyABTest
   private $cookie_expire;
   private $cookie_name;
   private $isDisable;
+  protected $max_ab_num;
 
 
   /**
@@ -34,28 +35,38 @@ class HYKWTinyABTest
     if ($cookie_name == FALSE)
       $cookie_name = self::DEFAULT_COOKIE_NAME;
 
-
-
     $this->cookie_expire = time() + ($expire_min * 60);
     $this->enable();
     $this->max_ab_num = $max_ab_num;
     $this->cookie_name = $cookie_name;
 
 
+    # validation OK なら、cookieの値を信用して読み込む
+    # 改竄されてたら再生成
+    $cookie = FALSE;
     if (isset($_COOKIE[$this->cookie_name])) {
-      $cookie = $_COOKIE[$this->cookie_name];
+      $work = $_COOKIE[$this->cookie_name];
 
-      # cookie 改竄されてないか？
-      if (is_numeric($cookie)) {
-        if ( (0 <= $cookie) && ($cookie < $this->max_ab_num)) {
-          $this->cookie_value = intval($cookie);
-          return;
-        }
-      }
+      if ($this->validateCookieValue($work))
+        $cookie = $work;
     }
 
-    # cookieの値を利用できないので、値を再生成
-    $this->cookie_value = $this->_castDice($this->max_ab_num);
+    if ($cookie == FALSE)
+      $cookie = $this->_castDice($this->max_ab_num);
+
+    $this->cookie_value = $cookie;
+  }
+
+
+  /**
+   * validateCookieValue 
+   * 
+   * @param mixed $cookie_value 
+   * @return string TRUE:問題なし, FALSE:改竄とか想定外の値とか(要再生成）
+   */
+  function validateCookieValue($cookie_value)
+  {
+    return FALSE;
   }
 
 
@@ -124,4 +135,23 @@ class HYKWTinyABTest
 
 
 }
+
+
+# 数字のみ許可
+class NumericHYKWTinyABTest extends HYKWTinyABTestBase
+{
+  function validateCookieValue($cookie_value)
+  {
+    if (!is_numeric($cookie_value))
+      return FALSE;
+
+    if ( ($cookie_value < 0) || ($this->max_ab_num <= $cookie_value))
+      return FALSE;
+
+    return TRUE;
+  }
+
+}
+
+
 

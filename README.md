@@ -10,7 +10,7 @@
 functions.php あたりで。
 
 ```php
-$gobjABTest = new HYKWTinyABTest();
+$gobjABTest = new NumericHYKWTinyABTest();   // cookieの値が数値のみの場合
 ```
 
 ## ヘッダ出力前に Cookie を出力
